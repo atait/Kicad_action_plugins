@@ -71,6 +71,21 @@ if SWIG_VERSION >= 7:
     pcbnew.wxSize = pcbnew.VECTOR2I
     pcbnew.EDA_RECT = pcbnew.BOX2I
 
+def Duplicate(aBoardItem):
+    ''' KiCad 7 has a bug where Duplicate always returns BOARD_ITEM
+        instead of the type of the caller, so this function includes a cast.
+    '''
+    dup = aBoardItem.Duplicate()
+    if type(dup) is type(aBoardItem):  # This should hit in v6
+        return dup
+    class_name = type(aBoardItem).__name__
+    caster_attr = 'Cast_to_' + class_name
+    try:
+        caster_fun = getattr(pcbnew, caster_attr)
+    except AttributeError:
+        # Missed caster for {class_name}
+        return dup
+    return caster_fun(dup)
 
 def rotate_around_center(coordinates, angle):
     """ rotate coordinates for a defined angle in degrees around coordinate center"""
@@ -711,7 +726,7 @@ class Replicator():
                     to_net_item = net_dict[to_net_name]
 
                     # make a duplicate, move it, rotate it, select proper net and add it to the board
-                    new_track = track.Duplicate()
+                    new_track = Duplicate(track)
                     new_track.Rotate(src_anchor_module_position, delta_orientation)
                     new_track.Move(move_vector)
                     new_track.SetNetCode(to_net_code)
@@ -777,7 +792,7 @@ class Replicator():
                     to_net_item = net_dict[to_net_name]
 
                 # make a duplicate, move it, rotate it, select proper net and add it to the board
-                new_zone = zone.Duplicate()
+                new_zone = Duplicate(zone)
                 new_zone.Rotate(src_anchor_module_position, delta_orientation)
                 new_zone.Move(move_vector)
                 new_zone.SetNetCode(to_net_code)
@@ -810,7 +825,7 @@ class Replicator():
                 progress = progress + (1/nr_sheets)*(1/nr_text)
                 self.update_progress(self.stage, progress, None)
 
-                new_text = text.Duplicate()
+                new_text = Duplicate(text)
                 new_text.Move(anchor_delta_pos)
                 new_text.Rotate(dst_anchor_module_position, -anchor_delta_angle * 10)
                 self.board.Add(new_text)
@@ -841,7 +856,7 @@ class Replicator():
                 progress = progress + (1/nr_sheets)*(1/nr_drawings)
                 self.update_progress(self.stage, progress, None)
 
-                new_drawing = drawing.Duplicate()
+                new_drawing = Duplicate(drawing)
                 new_drawing.Move(anchor_delta_pos)
                 new_drawing.Rotate(dst_anchor_module_position, -anchor_delta_angle * 10)
 
