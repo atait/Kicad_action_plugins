@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger('sexp_parser').setLevel(logging.INFO)
 logging.getLogger('root').setLevel(logging.INFO)
 
-# get version information
+# get replicate_layout version information
 version_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "version.txt")
 with open(version_filename, 'rb') as f:
     # read and decode
@@ -55,6 +55,21 @@ if hasattr(pcbnew, 'GetBuildVersion'):
     BUILD_VERSION = pcbnew.GetBuildVersion()
 else:
     BUILD_VERSION = "Unknown"
+
+# get pcbnew's python SWIG API version information
+try:
+    swig_ver = [int(x) for x in pcbnew.GetMajorMinorVersion().split('.')]
+except AttributeError:
+    SWIG_VERSION = [5, 1]
+SWIG_VERSION = swig_ver[0]
+if swig_ver[1] == 99:
+    SWIG_VERSION += 1
+
+# Monkey patch pcbnew for some compatibility with v6 API
+if SWIG_VERSION >= 7:
+    pcbnew.wxPoint = pcbnew.VECTOR2I
+    pcbnew.wxSize = pcbnew.VECTOR2I
+    pcbnew.EDA_RECT = pcbnew.BOX2I
 
 
 def rotate_around_center(coordinates, angle):
