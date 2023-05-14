@@ -992,7 +992,7 @@ class Replicator():
         self.src_anchor_module_position = self.src_anchor_module.mod.GetPosition()
         self.update_progress(self.stage, 0.0, "Preparing for replication")
         self.prepare_for_replication(level, containing)
-        if remove:
+        if remove and SWIG_VERSION < 7:
             logger.info("Removing tracks and zones, before module placement")
             self.stage = 2
             self.update_progress(self.stage, 0.0, "Removing zones and tracks")
