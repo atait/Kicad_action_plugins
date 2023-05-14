@@ -3,3 +3,4 @@
 *.log
 *.bak
 *.kicad_pcb-bak
+*-backups/
