@@ -26,6 +26,7 @@ import os
 import logging
 import sys
 import time
+import traceback
 
 if __name__ == '__main__':
     import replicatelayout
@@ -224,6 +225,12 @@ class ReplicateLayoutDialog(replicate_layout_GUI.ReplicateLayoutGUI):
             return
         except Exception:
             # clear highlight on all modules on selected level
+            caption = 'Replicate Layout'
+            message = str(traceback.format_exc())
+            dlg = wx.MessageDialog(self, message, caption, wx.OK | wx.ICON_ERROR)
+            dlg.ShowModal()
+            dlg.Destroy()
+
             for mod in self.src_modules:
                 clear_highlight_on_module(mod)
             pcbnew.Refresh()
