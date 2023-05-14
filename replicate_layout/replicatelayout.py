@@ -827,7 +827,11 @@ class Replicator():
 
                 new_text = Duplicate(text)
                 new_text.Move(anchor_delta_pos)
-                new_text.Rotate(dst_anchor_module_position, -anchor_delta_angle * 10)
+                try:
+                    new_text.Rotate(dst_anchor_module_position, -anchor_delta_angle * 10)
+                except TypeError:
+                    rot_obj = pcbnew.EDA_ANGLE(anchor_delta_angle, pcbnew.EDA_UNITS_DEGREES)
+                    new_text.Rotate(dst_anchor_module_position, -1 * rot_obj)
                 self.board.Add(new_text)
 
     def replicate_drawings(self):
@@ -858,7 +862,11 @@ class Replicator():
 
                 new_drawing = Duplicate(drawing)
                 new_drawing.Move(anchor_delta_pos)
-                new_drawing.Rotate(dst_anchor_module_position, -anchor_delta_angle * 10)
+                try:
+                    new_drawing.Rotate(dst_anchor_module_position, -anchor_delta_angle * 10)
+                except TypeError:
+                    rot_obj = pcbnew.EDA_ANGLE(anchor_delta_angle, pcbnew.EDA_UNITS_DEGREES)
+                    new_drawing.Rotate(dst_anchor_module_position, -1 * rot_obj)
 
                 self.board.Add(new_drawing)
 
